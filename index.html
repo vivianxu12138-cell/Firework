@@ -21,18 +21,7 @@
         <p id="hint-en" class="hint-line hint-en">Requesting camera and loading model…</p>
       </div>
     </div>
-    <script type="module">
-      import("./js/app.js").catch((err) => {
-        console.error(err);
-        const zh = document.getElementById("hint-zh");
-        const en = document.getElementById("hint-en");
-        if (zh)
-          zh.textContent =
-            "主脚本加载失败（请检查 js 路径与网络）。若在国内，可尝试 VPN。";
-        if (en)
-          en.textContent =
-            "Main script failed to load. Check Network tab for 404 / blocked requests.";
-      });
-    </script>
+    <!-- 与 app.js 同目录必须有 fireworks.js（全小写，Vercel/Linux 区分大小写） -->
+    <script type="module" src="./js/app.js"></script>
   </body>
 </html>

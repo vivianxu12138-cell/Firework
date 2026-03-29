@@ -79,7 +79,8 @@ function resizeCanvas() {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 
-const RESIDUAL_FADE = 0.088;
+/** 残影强度；勿与 lighter 叠用（淡色在 lighter 下会几乎看不见） */
+const RESIDUAL_FADE = 0.065;
 
 function loop(now) {
   const dtMs = Math.min(50, now - lastFrameTime);
@@ -98,12 +99,9 @@ function loop(now) {
   ctx.fillStyle = `rgba(0,0,0,${RESIDUAL_FADE})`;
   ctx.fillRect(0, 0, w, h);
 
+  /* 用 source-over：柔色、描边在透明画布上可见；lighter 会让浅色系「消失」 */
   ctx.globalCompositeOperation = "source-over";
-  ctx.save();
-  ctx.globalCompositeOperation = "lighter";
   fireworks.draw(ctx);
-  ctx.restore();
-  ctx.globalCompositeOperation = "source-over";
 
   requestAnimationFrame(loop);
 }
