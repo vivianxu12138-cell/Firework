@@ -5,25 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gesture Fireworks 手势烟花 · MediaPipe</title>
     <link rel="stylesheet" href="./css/app.css" />
-    <!-- MediaPipe（全局脚本，与官方示例一致） -->
-    <script
-      src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"
-      crossorigin="anonymous"
-    ></script>
+    <!--
+      不要使用 crossorigin="anonymous"：部分网络/CDN 组合会导致脚本整段不执行，Hands/Camera 为空。
+      若 unpkg 慢可改回 jsdelivr（同样不要加 crossorigin）
+    -->
+    <script src="https://unpkg.com/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://unpkg.com/@mediapipe/hands/hands.js"></script>
   </head>
   <body>
     <div id="app">
-      <video id="camera" playsinline></video>
+      <video id="camera" playsinline muted></video>
       <canvas id="fireworks-canvas" aria-hidden="true"></canvas>
       <div id="hint" class="hint-wrap" role="status">
         <p id="hint-zh" class="hint-line hint-zh">正在请求摄像头与加载模型…</p>
         <p id="hint-en" class="hint-line hint-en">Requesting camera and loading model…</p>
       </div>
     </div>
-    <script type="module" src="./js/app.js"></script>
+    <script type="module">
+      import("./js/app.js").catch((err) => {
+        console.error(err);
+        const zh = document.getElementById("hint-zh");
+        const en = document.getElementById("hint-en");
+        if (zh)
+          zh.textContent =
+            "主脚本加载失败（请检查 js 路径与网络）。若在国内，可尝试 VPN。";
+        if (en)
+          en.textContent =
+            "Main script failed to load. Check Network tab for 404 / blocked requests.";
+      });
+    </script>
   </body>
 </html>

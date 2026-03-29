@@ -3,12 +3,9 @@ import { FireworksEngine } from "./fireworks.js";
 const PINCH_THRESHOLD_NORM = 0.06;
 const TRIGGER_COOLDOWN_MS = 300;
 
-/**
- * MediaPipe 模型文件 CDN：若 jsdelivr 在你所在网络失败，可改为 unpkg 行并注释上一行
- * 例：const MEDIAPIPE_HANDS_BASE = "https://unpkg.com/@mediapipe/hands/";
- */
-const MEDIAPIPE_HANDS_BASE = "https://cdn.jsdelivr.net/npm/@mediapipe/hands/";
-// const MEDIAPIPE_HANDS_BASE = "https://unpkg.com/@mediapipe/hands/";
+/** 与 index.html 里 MediaPipe 同源，优先 unpkg；若仍失败可改 jsdelivr */
+const MEDIAPIPE_HANDS_BASE = "https://unpkg.com/@mediapipe/hands/";
+// const MEDIAPIPE_HANDS_BASE = "https://cdn.jsdelivr.net/npm/@mediapipe/hands/";
 
 const videoEl = document.getElementById("camera");
 const canvasEl = document.getElementById("fireworks-canvas");
@@ -33,6 +30,10 @@ const TEXT = {
   error: {
     zh: "无法启动摄像头或 MediaPipe。",
     en: "Could not access camera or MediaPipe.",
+  },
+  noMediaPipe: {
+    zh: "MediaPipe 脚本未加载（可能被广告拦截或 CDN 无法访问）。请换网络、关闭拦截后刷新。",
+    en: "MediaPipe scripts missing (blocked or CDN unreachable). Disable blockers and refresh.",
   },
 };
 
@@ -131,29 +132,40 @@ function onHandsResults(results) {
   }
 }
 
+function withTimeout(promise, ms, label) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error(`${label} 超时 (${ms}ms)`)), ms)
+    ),
+  ]);
+}
+
 async function main() {
   setBilingual(TEXT.loading.zh, TEXT.loading.en);
 
   resizeCanvas();
   window.addEventListener("resize", resizeCanvas);
 
+  const HandsCtor = window.Hands;
+  const CameraCtor = window.Camera;
+  if (!HandsCtor || !CameraCtor) {
+    setBilingual(TEXT.noMediaPipe.zh, TEXT.noMediaPipe.en);
+    return;
+  }
+
   const stream = await navigator.mediaDevices.getUserMedia({
     audio: false,
     video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } },
   });
   videoEl.srcObject = stream;
+  videoEl.muted = true;
   await videoEl.play();
 
   await new Promise((resolve) => {
     requestAnimationFrame(() => requestAnimationFrame(resolve));
   });
   resizeCanvas();
-
-  const HandsCtor = window.Hands;
-  const CameraCtor = window.Camera;
-  if (!HandsCtor || !CameraCtor) {
-    throw new Error("MediaPipe Hands / Camera");
-  }
 
   const hands = new HandsCtor({
     locateFile: (file) => `${MEDIAPIPE_HANDS_BASE}${file}`,
@@ -175,7 +187,8 @@ async function main() {
     width: 1280,
     height: 720,
   });
-  await camera.start();
+
+  await withTimeout(camera.start(), 60000, "MediaPipe Camera.start");
 
   setBilingual(TEXT.ready.zh, TEXT.ready.en);
   resizeCanvas();
