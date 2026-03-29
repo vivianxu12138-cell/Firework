@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gesture Fireworks 手势烟花 · MediaPipe</title>
+    <link rel="stylesheet" href="./css/app.css" />
+    <!-- MediaPipe（全局脚本，与官方示例一致） -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <div id="app">
+      <video id="camera" playsinline></video>
+      <canvas id="fireworks-canvas" aria-hidden="true"></canvas>
+      <div id="hint" class="hint-wrap" role="status">
+        <p id="hint-zh" class="hint-line hint-zh">正在请求摄像头与加载模型…</p>
+        <p id="hint-en" class="hint-line hint-en">Requesting camera and loading model…</p>
+      </div>
+    </div>
+    <script type="module" src="./js/app.js"></script>
+  </body>
+</html>

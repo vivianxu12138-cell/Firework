@@ -1,0 +1,78 @@
+/* 全屏容器：摄像头与 Canvas 叠加 */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+}
+
+#app {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* 摄像头底层，铺满视口（保持比例裁剪） */
+#camera {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1); /* 镜像，更符合自拍习惯 */
+}
+
+/* 烟花层：透明背景，与视口一致，叠在视频上 */
+#fireworks-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  display: block;
+}
+
+/* 中英双语提示 */
+.hint-wrap {
+  position: absolute;
+  left: 50%;
+  bottom: 1rem;
+  transform: translateX(-50%);
+  max-width: min(92vw, 36rem);
+  padding: 0.55rem 1.1rem;
+  pointer-events: none;
+  user-select: none;
+  text-align: center;
+}
+
+.hint-line {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85);
+}
+
+.hint-zh {
+  font-size: clamp(0.8rem, 2.8vw, 1rem);
+  color: rgba(255, 255, 255, 0.92);
+  letter-spacing: 0.02em;
+  line-height: 1.45;
+}
+
+.hint-en {
+  margin-top: 0.35rem;
+  font-size: clamp(0.68rem, 2.2vw, 0.88rem);
+  color: rgba(230, 235, 245, 0.78);
+  font-weight: 450;
+  letter-spacing: 0.01em;
+  line-height: 1.4;
+}
